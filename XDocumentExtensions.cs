@@ -23,6 +23,7 @@ namespace XmlTools
 
         private IEnumerable<ModelContent> modelClass(XElement xElement, Func<XElement, string> func)
         {
+            
             var sb = new StringBuilder();
             var namespaceName = CapitalizeFirstLetter(xDocument.Root.Name.LocalName);
             var className = CapitalizeFirstLetter(xElement.Name.LocalName);
@@ -36,8 +37,12 @@ namespace XmlTools
             sb.AppendLine("\t{");
             foreach (var element in xElement.Elements())
             {
+                var xpath = element.XmlXPath();
+                var property = CapitalizeFirstLetter(element.Name.LocalName);
+                var type =  element.Elements().Count() != 0 ? property : func(element);
+
                 sb.AppendLine($"\t\t[XmlElement(\"{element.Name.LocalName}\")]");
-                sb.AppendLine($"\t\tpublic {func(element)} {CapitalizeFirstLetter(element.Name.LocalName)} {{ get; set; }}");
+                sb.AppendLine($"\t\tpublic {func(element)} {property} {{ get; set; }}");
                 if (element.Elements().Count() != 0)
                     foreach (var i in modelClass(element, func))
                         yield return i;
